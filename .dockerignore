@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific
+*.xyz
+*.obj
+*.ply
+*.stl
+*.png
+*.jpg
+*.jpeg
+
+# Models and cache
+.cache/
+models/
+*.pth
+*.pt
+*.ckpt
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+
+# Outputs (will be mounted as volume)
+outputs/
+
+# Old files
+word_to_xyz.py
