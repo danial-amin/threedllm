@@ -217,21 +217,42 @@ async function checkHealth() {
 checkHealth();
 updateQualityPreset(); // Set initial preset values
 
+// Wait for Three.js modules to be ready
+function waitForThreeModules(callback, maxWait = 10000) {
+    const startTime = Date.now();
+    
+    const checkModules = () => {
+        if (window.threeModulesReady && 
+            window.THREE_OBJLoader && 
+            window.THREE_PLYLoader && 
+            window.THREE_STLLoader && 
+            window.THREE_OrbitControls) {
+            console.log('Three.js modules confirmed ready');
+            callback();
+        } else if (Date.now() - startTime < maxWait) {
+            setTimeout(checkModules, 100);
+        } else {
+            console.error('Three.js modules failed to load within timeout');
+            alert('Three.js modules failed to load. Please refresh the page.');
+        }
+    };
+    
+    // Also listen for the custom event
+    window.addEventListener('threeModulesReady', callback, { once: true });
+    
+    // Start checking
+    checkModules();
+}
+
 // Initialize viewer when result card becomes visible
 const observer = new MutationObserver(() => {
     if (!resultCard.classList.contains('hidden')) {
-        // Small delay to ensure DOM and Three.js modules are ready
+        // Small delay to ensure DOM is ready
         setTimeout(() => {
             if (typeof initViewer === 'function' && !viewer) {
-                // Wait for Three.js modules to be available
-                const waitForModules = () => {
-                    if (window.threeModulesReady && window.THREE_OrbitControls) {
-                        initViewer();
-                    } else {
-                        setTimeout(waitForModules, 100);
-                    }
-                };
-                waitForModules();
+                waitForThreeModules(() => {
+                    initViewer();
+                });
             }
         }, 100);
     }

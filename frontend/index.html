@@ -9,19 +9,72 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Three.js addons as ES modules (loaded after Three.js) -->
     <script type="module">
-        import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/OBJLoader.js';
-        import { PLYLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/PLYLoader.js';
-        import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/STLLoader.js';
-        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        // Set loading flag
+        window.threeModulesReady = false;
+        window.threeModulesLoading = {
+            OBJ: false,
+            PLY: false,
+            STL: false,
+            Controls: false
+        };
         
-        // Make them available globally
-        window.THREE_OBJLoader = OBJLoader;
-        window.THREE_PLYLoader = PLYLoader;
-        window.THREE_STLLoader = STLLoader;
-        window.THREE_OrbitControls = OrbitControls;
-        window.threeModulesReady = true;
+        function checkAllModulesReady() {
+            if (window.THREE_OBJLoader && window.THREE_PLYLoader && 
+                window.THREE_STLLoader && window.THREE_OrbitControls) {
+                window.threeModulesReady = true;
+                console.log('✅ All Three.js modules loaded and ready!');
+                // Dispatch event to notify that modules are ready
+                window.dispatchEvent(new CustomEvent('threeModulesReady'));
+            }
+        }
         
-        console.log('Three.js modules loaded');
+        // Load OBJLoader
+        import('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/OBJLoader.js')
+            .then(module => {
+                window.THREE_OBJLoader = module.OBJLoader;
+                window.threeModulesLoading.OBJ = true;
+                console.log('✅ OBJLoader loaded');
+                checkAllModulesReady();
+            })
+            .catch(err => {
+                console.error('❌ Failed to load OBJLoader:', err);
+            });
+        
+        // Load PLYLoader
+        import('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/PLYLoader.js')
+            .then(module => {
+                window.THREE_PLYLoader = module.PLYLoader;
+                window.threeModulesLoading.PLY = true;
+                console.log('✅ PLYLoader loaded');
+                checkAllModulesReady();
+            })
+            .catch(err => {
+                console.error('❌ Failed to load PLYLoader:', err);
+            });
+        
+        // Load STLLoader
+        import('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/STLLoader.js')
+            .then(module => {
+                window.THREE_STLLoader = module.STLLoader;
+                window.threeModulesLoading.STL = true;
+                console.log('✅ STLLoader loaded');
+                checkAllModulesReady();
+            })
+            .catch(err => {
+                console.error('❌ Failed to load STLLoader:', err);
+            });
+        
+        // Load OrbitControls
+        import('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js')
+            .then(module => {
+                window.THREE_OrbitControls = module.OrbitControls;
+                window.threeModulesLoading.Controls = true;
+                console.log('✅ OrbitControls loaded');
+                checkAllModulesReady();
+            })
+            .catch(err => {
+                console.error('❌ Failed to load OrbitControls:', err);
+            });
     </script>
 </head>
 <body>
@@ -67,6 +120,16 @@
                     </div>
 
                     <div class="form-row">
+                        <div class="form-group">
+                            <label for="generator">3D Generator</label>
+                            <select id="generator" name="generator">
+                                <option value="shap_e" selected>Shap-E (Free, Open-Source)</option>
+                                <option value="neural4d">Neural4D API (High Quality, ~90s)</option>
+                                <option value="instant3d">Instant3D API (Fast, PBR Textures)</option>
+                            </select>
+                            <small>Shap-E is free but variable quality. API generators require keys but produce better results.</small>
+                        </div>
+
                         <div class="form-group">
                             <label for="format">Output Format</label>
                             <select id="format" name="format">

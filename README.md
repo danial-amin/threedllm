@@ -9,6 +9,7 @@ A comprehensive Vision Language Model (VLM) system for generating 3D objects fro
 - **Multiple Export Formats**: Support for XYZ, OBJ, PLY, and STL formats
 - **Modular Architecture**: Extensible design supporting multiple VLM and 3D generation backends
 - **Flexible Configuration**: Fine-tune generation parameters (guidance scale, steps, seed, etc.)
+- **High-Quality API Generators**: Support for Neural4D and Instant3D APIs for production-ready 3D models
 
 ## Architecture
 
@@ -25,7 +26,10 @@ threedllm/
 ### Components
 
 - **VLM Providers**: Interface for vision-language models (currently OpenAI GPT-4 Vision)
-- **3D Generators**: Backends for 3D mesh generation (currently Shap-E)
+- **3D Generators**: Backends for 3D mesh generation
+  - **Shap-E**: Free, open-source (variable quality)
+  - **Neural4D API**: High-quality, fast (~90s) - requires API key
+  - **Instant3D API**: Fast generation with PBR textures - requires API key
 - **Exporters**: Convert generated meshes to various file formats
 - **Pipeline**: Orchestrates the entire generation workflow
 
@@ -251,6 +255,38 @@ optional arguments:
 - **OBJ**: Wavefront OBJ format (vertices and faces)
 - **PLY**: Polygon File Format (vertices and faces)
 - **STL**: Stereolithography format (for 3D printing)
+
+## Using High-Quality API Generators
+
+For better quality than Shap-E, you can use API-based generators:
+
+### Neural4D (Recommended for Quality)
+
+1. **Get API key**: Sign up at https://www.neural4d.com/api
+2. **Set environment variable**:
+   ```bash
+   export NEURAL4D_API_KEY="your-api-key"
+   export GENERATOR_TYPE=neural4d
+   ```
+3. **Install trimesh** (for parsing):
+   ```bash
+   pip install trimesh
+   ```
+
+### Instant3D
+
+1. **Get API key**: Sign up at https://instant3d.co
+2. **Set environment variable**:
+   ```bash
+   export INSTANT3D_API_KEY="your-api-key"
+   export GENERATOR_TYPE=instant3d
+   ```
+3. **Install trimesh**:
+   ```bash
+   pip install trimesh
+   ```
+
+See [API_GENERATORS.md](API_GENERATORS.md) for detailed documentation.
 
 ## Extending ThreeDLLM
 

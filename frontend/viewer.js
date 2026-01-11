@@ -120,11 +120,18 @@ class ThreeDViewer {
                 const loader = this.getLoader(format);
                 if (loader) {
                     this.loadWithLoader(loader, url, resolve, reject);
-                } else if (retries < 50 && !window.threeModulesReady) {
-                    // Wait for modules to load (max 5 seconds)
+                } else if (retries < 100 && !window.threeModulesReady) {
+                    // Wait for modules to load (max 10 seconds)
                     setTimeout(() => tryGetLoader(retries + 1), 100);
                 } else {
-                    reject(new Error(`Failed to load loader for format: ${format}. Make sure Three.js modules are loaded.`));
+                    const available = {
+                        OBJ: !!window.THREE_OBJLoader,
+                        PLY: !!window.THREE_PLYLoader,
+                        STL: !!window.THREE_STLLoader,
+                        Controls: !!window.THREE_OrbitControls,
+                        ready: window.threeModulesReady
+                    };
+                    reject(new Error(`Failed to load loader for format: ${format}. Available loaders: ${JSON.stringify(available)}`));
                 }
             };
             

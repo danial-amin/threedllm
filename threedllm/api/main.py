@@ -40,40 +40,81 @@ app.add_middleware(
 )
 
 # Initialize components (lazy loading)
-_generator: Optional[ShapEGenerator] = None
 _vlm: Optional[OpenAIProvider] = None
-_pipeline: Optional[ThreeDPipeline] = None
 
 
-def get_pipeline() -> ThreeDPipeline:
-    """Get or create the pipeline instance."""
-    global _generator, _vlm, _pipeline
-
-    if _pipeline is None:
-        # Initialize generator
-        if _generator is None:
-            device = os.environ.get("DEVICE", "auto")
-            device = None if device == "auto" else device
-            _generator = ShapEGenerator(device=device)
-            if not _generator.is_available():
+def get_generator(generator_type: str = None) -> Generator3D:
+    """
+    Get a generator instance based on type.
+    
+    Args:
+        generator_type: "shap_e", "neural4d", or "instant3d". 
+                      If None, uses GENERATOR_TYPE env var.
+    """
+    if generator_type is None:
+        generator_type = os.environ.get("GENERATOR_TYPE", "shap_e").lower()
+    
+    if generator_type == "neural4d":
+        try:
+            from threedllm.generators.neural4d import Neural4DGenerator
+            generator = Neural4DGenerator()
+            if not generator.is_available():
                 raise RuntimeError(
-                    "Shap-E generator is not available. "
-                    "Please ensure shap-e is installed: pip install git+https://github.com/openai/shap-e.git"
+                    "Neural4D generator is not available. "
+                    "Please set NEURAL4D_API_KEY environment variable."
                 )
+            return generator
+        except ImportError:
+            raise RuntimeError(
+                "Neural4D generator requires trimesh. "
+                "Install with: pip install trimesh"
+            )
+    elif generator_type == "instant3d":
+        try:
+            from threedllm.generators.instant3d import Instant3DGenerator
+            generator = Instant3DGenerator()
+            if not generator.is_available():
+                raise RuntimeError(
+                    "Instant3D generator is not available. "
+                    "Please set INSTANT3D_API_KEY environment variable."
+                )
+            return generator
+        except ImportError:
+            raise RuntimeError(
+                "Instant3D generator requires trimesh. "
+                "Install with: pip install trimesh"
+            )
+    else:  # default to shap_e
+        device = os.environ.get("DEVICE", "auto")
+        device = None if device == "auto" else device
+        generator = ShapEGenerator(device=device)
+        if not generator.is_available():
+            raise RuntimeError(
+                "Shap-E generator is not available. "
+                "Please ensure shap-e is installed: pip install git+https://github.com/openai/shap-e.git"
+            )
+        return generator
 
-        # Initialize VLM
-        if _vlm is None:
-            _vlm = OpenAIProvider()
 
-        _pipeline = ThreeDPipeline(generator=_generator, vlm=_vlm)
+def get_pipeline(generator_type: str = None) -> ThreeDPipeline:
+    """Get or create the pipeline instance."""
+    global _vlm
 
-    return _pipeline
+    # Always create a new pipeline with the requested generator
+    generator = get_generator(generator_type)
+    
+    # Initialize VLM if needed
+    if _vlm is None:
+        _vlm = OpenAIProvider()
+
+    return ThreeDPipeline(generator=generator, vlm=_vlm)
 
 
 @app.get("/api/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
     try:
+        # Check default generator (from env var)
         pipeline = get_pipeline()
         generator_available = pipeline.generator.is_available()
         vlm_available = pipeline.vlm.is_available() if pipeline.vlm else False
@@ -100,6 +141,7 @@ async def generate_3d(
     format: str = Form("obj", regex="^(xyz|obj|ply|stl)$"),
     max_points: Optional[int] = Form(None, ge=1),
     image: Optional[UploadFile] = File(None, description="Optional image for image-to-3D"),
+    generator: str = Form("shap_e", regex="^(shap_e|neural4d|instant3d)$", description="3D generator to use"),
 ):
     """
     Generate a 3D object from a text prompt.
@@ -107,7 +149,7 @@ async def generate_3d(
     This endpoint accepts form data and returns a task ID for async processing.
     """
     try:
-        pipeline = get_pipeline()
+        pipeline = get_pipeline(generator_type=generator)
 
         # Handle image upload
         image_path = None
@@ -156,7 +198,7 @@ async def generate_3d_json(request: GenerationRequest):
     This is an alternative endpoint that accepts JSON instead of form data.
     """
     try:
-        pipeline = get_pipeline()
+        pipeline = get_pipeline(generator_type=request.generator)
 
         config = GenerationConfig(
             guidance_scale=request.guidance_scale,

@@ -15,6 +15,7 @@ class GenerationRequest(BaseModel):
     seed: Optional[int] = Field(None, description="Random seed for reproducibility")
     format: Literal["xyz", "obj", "ply", "stl"] = Field("obj", description="Output file format")
     max_points: Optional[int] = Field(None, ge=1, description="Maximum points for XYZ format")
+    generator: Literal["shap_e", "neural4d", "instant3d"] = Field("shap_e", description="3D generator to use")
 
 
 class GenerationResponse(BaseModel):
