@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThreeDLLM - 3D Object Generation</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js addons as ES modules (loaded after Three.js) -->
+    <script type="module">
+        import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/OBJLoader.js';
+        import { PLYLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/PLYLoader.js';
+        import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/STLLoader.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+        
+        // Make them available globally
+        window.THREE_OBJLoader = OBJLoader;
+        window.THREE_PLYLoader = PLYLoader;
+        window.THREE_STLLoader = STLLoader;
+        window.THREE_OrbitControls = OrbitControls;
+        window.threeModulesReady = true;
+        
+        console.log('Three.js modules loaded');
+    </script>
 </head>
 <body>
     <div class="container">
@@ -60,28 +78,40 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="quality">Quality Preset</label>
+                            <select id="quality" name="quality" onchange="updateQualityPreset()">
+                                <option value="fast">Fast (64 steps, ~2 min)</option>
+                                <option value="balanced" selected>Balanced (100 steps, ~3-4 min)</option>
+                                <option value="high">High Quality (128 steps, ~5-6 min)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="guidanceScaleGroup">
                             <label for="guidanceScale">Guidance Scale</label>
                             <input 
                                 type="number" 
                                 id="guidanceScale" 
                                 name="guidanceScale" 
-                                value="15.0" 
+                                value="17.5" 
                                 min="1" 
                                 max="50" 
                                 step="0.5"
                             >
+                            <small>Higher = more prompt adherence (15-20 recommended)</small>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="stepsGroup">
                             <label for="steps">Steps</label>
                             <input 
                                 type="number" 
                                 id="steps" 
                                 name="steps" 
-                                value="64" 
+                                value="100" 
                                 min="1" 
                                 max="256"
                             >
+                            <small>More steps = better quality but slower</small>
                         </div>
                     </div>
 
@@ -114,9 +144,22 @@
                 <h2>Generation Complete!</h2>
                 <div id="resultContent">
                     <p>Your 3D object has been generated successfully.</p>
-                    <a id="downloadLink" href="#" class="btn btn-success" download>
-                        Download Result
-                    </a>
+                    
+                    <div id="viewerContainer" style="width: 100%; height: 400px; margin: 1rem 0; border: 2px solid var(--border-color); border-radius: 8px; background: #000; position: relative;">
+                        <canvas id="threejsCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+                        <div id="viewerControls" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 0.5rem; border-radius: 4px; color: white; font-size: 0.875rem;">
+                            <div>🖱️ Left: Rotate | 🖱️ Right: Pan | 🖱️ Scroll: Zoom</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <a id="downloadLink" href="#" class="btn btn-success" download>
+                            Download Result
+                        </a>
+                        <button id="resetViewBtn" class="btn" style="background: var(--text-light); color: white;">
+                            Reset View
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -126,6 +169,7 @@
         </footer>
     </div>
 
+    <script src="viewer.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

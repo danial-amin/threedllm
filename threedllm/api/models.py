@@ -10,8 +10,8 @@ class GenerationRequest(BaseModel):
 
     prompt: str = Field(..., description="Text prompt describing the 3D object")
     use_vlm: bool = Field(True, description="Whether to use VLM for prompt enhancement")
-    guidance_scale: float = Field(15.0, ge=1.0, le=50.0, description="Classifier-free guidance scale")
-    karras_steps: int = Field(64, ge=1, le=256, description="Number of Karras sampling steps")
+    guidance_scale: float = Field(17.5, ge=1.0, le=50.0, description="Classifier-free guidance scale (15-20 recommended)")
+    karras_steps: int = Field(100, ge=1, le=256, description="Number of Karras sampling steps (100-128 for better quality)")
     seed: Optional[int] = Field(None, description="Random seed for reproducibility")
     format: Literal["xyz", "obj", "ply", "stl"] = Field("obj", description="Output file format")
     max_points: Optional[int] = Field(None, ge=1, description="Maximum points for XYZ format")

@@ -94,8 +94,8 @@ async def health_check():
 async def generate_3d(
     prompt: str = Form(..., description="Text prompt describing the 3D object"),
     use_vlm: bool = Form(True, description="Whether to use VLM for prompt enhancement"),
-    guidance_scale: float = Form(15.0, ge=1.0, le=50.0),
-    karras_steps: int = Form(64, ge=1, le=256),
+    guidance_scale: float = Form(17.5, ge=1.0, le=50.0),
+    karras_steps: int = Form(100, ge=1, le=256),
     seed: Optional[int] = Form(None),
     format: str = Form("obj", regex="^(xyz|obj|ply|stl)$"),
     max_points: Optional[int] = Form(None, ge=1),

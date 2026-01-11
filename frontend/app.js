@@ -2,6 +2,13 @@
 
 const API_BASE = '/api';
 
+// Quality presets
+const QUALITY_PRESETS = {
+    fast: { steps: 64, guidanceScale: 15.0 },
+    balanced: { steps: 100, guidanceScale: 17.5 },
+    high: { steps: 128, guidanceScale: 20.0 }
+};
+
 // DOM elements
 const generateForm = document.getElementById('generateForm');
 const generateBtn = document.getElementById('generateBtn');
@@ -16,6 +23,28 @@ const downloadLink = document.getElementById('downloadLink');
 
 let currentTaskId = null;
 let pollInterval = null;
+
+// Update quality preset
+function updateQualityPreset() {
+    const qualitySelect = document.getElementById('quality');
+    const stepsInput = document.getElementById('steps');
+    const guidanceInput = document.getElementById('guidanceScale');
+    const stepsGroup = document.getElementById('stepsGroup');
+    const guidanceGroup = document.getElementById('guidanceScaleGroup');
+    
+    const preset = qualitySelect.value;
+    
+    if (preset === 'custom') {
+        stepsGroup.style.display = 'block';
+        guidanceGroup.style.display = 'block';
+    } else {
+        const config = QUALITY_PRESETS[preset];
+        stepsInput.value = config.steps;
+        guidanceInput.value = config.guidanceScale;
+        stepsGroup.style.display = 'block';
+        guidanceGroup.style.display = 'block';
+    }
+}
 
 // Form submission
 generateForm.addEventListener('submit', async (e) => {
@@ -128,6 +157,31 @@ function showResult(resultUrl) {
     // Extract filename from URL
     const filename = resultUrl.split('/').pop();
     downloadLink.download = filename;
+    
+    // Extract format from filename - handle edge cases
+    let format = 'obj'; // default
+    if (filename && filename.includes('.')) {
+        const parts = filename.split('.');
+        if (parts.length > 1) {
+            format = parts[parts.length - 1].toLowerCase().trim();
+        }
+    }
+    
+    // Validate format
+    const validFormats = ['obj', 'ply', 'stl', 'xyz'];
+    if (!validFormats.includes(format)) {
+        console.warn(`Unknown format "${format}", defaulting to OBJ`);
+        format = 'obj';
+    }
+    
+    console.log('Loading mesh with format:', format, 'from URL:', resultUrl);
+    
+    // Load mesh in viewer
+    if (typeof loadMeshInViewer === 'function') {
+        loadMeshInViewer(resultUrl, format);
+    } else {
+        console.error('loadMeshInViewer function not available');
+    }
 }
 
 function showError(message) {
@@ -161,3 +215,35 @@ async function checkHealth() {
 
 // Initialize
 checkHealth();
+updateQualityPreset(); // Set initial preset values
+
+// Initialize viewer when result card becomes visible
+const observer = new MutationObserver(() => {
+    if (!resultCard.classList.contains('hidden')) {
+        // Small delay to ensure DOM and Three.js modules are ready
+        setTimeout(() => {
+            if (typeof initViewer === 'function' && !viewer) {
+                // Wait for Three.js modules to be available
+                const waitForModules = () => {
+                    if (window.threeModulesReady && window.THREE_OrbitControls) {
+                        initViewer();
+                    } else {
+                        setTimeout(waitForModules, 100);
+                    }
+                };
+                waitForModules();
+            }
+        }, 100);
+    }
+});
+observer.observe(resultCard, { attributes: true, attributeFilter: ['class'] });
+
+// Reset view button
+const resetViewBtn = document.getElementById('resetViewBtn');
+if (resetViewBtn) {
+    resetViewBtn.addEventListener('click', () => {
+        if (typeof resetViewerView === 'function') {
+            resetViewerView();
+        }
+    });
+}

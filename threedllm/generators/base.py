@@ -11,14 +11,33 @@ Point = Tuple[float, float, float]
 class GenerationConfig:
     """Configuration for 3D generation."""
 
-    guidance_scale: float = 15.0
-    """Classifier-free guidance scale."""
-    karras_steps: int = 64
-    """Number of Karras sampling steps."""
+    guidance_scale: float = 17.5
+    """Classifier-free guidance scale. Higher values (15-20) improve prompt adherence."""
+    karras_steps: int = 100
+    """Number of Karras sampling steps. More steps (100-128) = better quality but slower."""
     seed: Optional[int] = None
     """Random seed for reproducibility."""
     batch_size: int = 1
     """Batch size for generation."""
+    
+    @classmethod
+    def quality_preset(cls, preset: str = "balanced") -> "GenerationConfig":
+        """
+        Create a config with quality presets.
+        
+        Args:
+            preset: "fast" (64 steps, 15.0 guidance), 
+                   "balanced" (100 steps, 17.5 guidance),
+                   "high" (128 steps, 20.0 guidance)
+        """
+        presets = {
+            "fast": {"karras_steps": 64, "guidance_scale": 15.0},
+            "balanced": {"karras_steps": 100, "guidance_scale": 17.5},
+            "high": {"karras_steps": 128, "guidance_scale": 20.0},
+        }
+        if preset not in presets:
+            preset = "balanced"
+        return cls(**presets[preset])
 
 
 @dataclass

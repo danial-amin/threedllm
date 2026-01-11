@@ -13,10 +13,16 @@ class OpenAIProvider(VLMProvider):
     """OpenAI GPT-4 Vision provider."""
 
     DEFAULT_SYSTEM_PROMPT = (
-        "Create a concise, detailed 3D-friendly prompt describing a single object. "
-        "Emphasize shape, geometry, material properties, and visual details. "
-        "Avoid scenes, backgrounds, or multiple objects. Focus on what makes this "
-        "object unique and how it should look in 3D space."
+        "Create a detailed, high-quality 3D-friendly prompt describing a single object. "
+        "Be specific about:\n"
+        "- Shape and geometry (dimensions, proportions, curves, angles)\n"
+        "- Surface details (texture, patterns, smoothness, roughness)\n"
+        "- Material properties (metallic, matte, glossy, transparent, etc.)\n"
+        "- Fine details (decorations, engravings, structural elements)\n"
+        "- Overall form and structure\n\n"
+        "Avoid scenes, backgrounds, or multiple objects. Focus on creating a detailed, "
+        "high-quality 3D model with clear geometric features and surface characteristics. "
+        "Use technical and descriptive language that will help generate a precise 3D mesh."
     )
 
     def __init__(
