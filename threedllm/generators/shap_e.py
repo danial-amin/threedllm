@@ -98,14 +98,24 @@ class ShapEGenerator(Generator3D):
         # Lazy import to avoid ipywidgets dependency at module level
         from shap_e.util.notebooks import decode_latent_mesh
         mesh = decode_latent_mesh(self._decoder_model, latents[0]).tri_mesh()
+        
+        # TriMesh uses 'verts' not 'vertices'
+        # Handle both tensor and numpy array cases
+        verts = mesh.verts
+        if hasattr(verts, "cpu"):
+            verts = verts.cpu().numpy()
         vertices = [
-            (float(x), float(y), float(z)) for x, y, z in mesh.vertices
+            (float(x), float(y), float(z)) for x, y, z in verts
         ]
 
         # Extract faces if available
         faces = None
         if hasattr(mesh, "faces") and mesh.faces is not None:
-            faces = [tuple(map(int, face)) for face in mesh.faces]
+            # Convert faces to list of tuples
+            faces_list = mesh.faces
+            if hasattr(faces_list, "cpu"):
+                faces_list = faces_list.cpu().numpy()
+            faces = [tuple(map(int, face)) for face in faces_list]
 
         return MeshResult(
             vertices=vertices,
