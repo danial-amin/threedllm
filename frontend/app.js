@@ -59,6 +59,11 @@ generateForm.addEventListener('submit', async (e) => {
     // Get form data
     const formData = new FormData(generateForm);
     
+    // Log the generator being sent
+    const generatorValue = formData.get('generator');
+    console.log('Sending generation request with generator:', generatorValue);
+    console.log('All form data:', Object.fromEntries(formData.entries()));
+    
     try {
         // Submit generation request
         const response = await fetch(`${API_BASE}/generate`, {

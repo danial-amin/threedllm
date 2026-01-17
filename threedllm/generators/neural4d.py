@@ -16,7 +16,11 @@ class Neural4DGenerator(APIGenerator3D):
         return "NEURAL4D_API_KEY"
 
     def _get_default_base_url(self) -> str:
-        return "https://api.neural4d.com/v1"
+        # Note: This is a template implementation. 
+        # You need to check Neural4D's actual API documentation for the correct endpoint.
+        # The base URL can be overridden via NEURAL4D_API_BASE_URL environment variable.
+        import os
+        return os.environ.get("NEURAL4D_API_BASE_URL", "https://www.neural4d.com/api/v1")
 
     def _get_auth_headers(self) -> dict:
         return {"Authorization": f"Bearer {self.api_key}"}

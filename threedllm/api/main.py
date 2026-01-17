@@ -18,7 +18,7 @@ from threedllm.api.models import (
     TaskStatusResponse,
 )
 from threedllm.api.tasks import task_manager
-from threedllm.generators.base import GenerationConfig
+from threedllm.generators.base import GenerationConfig, Generator3D
 from threedllm.generators.shap_e import ShapEGenerator
 from threedllm.pipeline import ThreeDPipeline
 from threedllm.vlm.openai import OpenAIProvider
@@ -53,6 +53,8 @@ def get_generator(generator_type: str = None) -> Generator3D:
     """
     if generator_type is None:
         generator_type = os.environ.get("GENERATOR_TYPE", "shap_e").lower()
+    
+    print(f"get_generator called with type: {generator_type}", flush=True)
     
     if generator_type == "neural4d":
         try:
@@ -149,7 +151,21 @@ async def generate_3d(
     This endpoint accepts form data and returns a task ID for async processing.
     """
     try:
-        pipeline = get_pipeline(generator_type=generator)
+        # Log the generator being used for debugging
+        print(f"[API] Request received - generator parameter: '{generator}'", flush=True)
+        
+        # Try to get the pipeline with the requested generator
+        try:
+            pipeline = get_pipeline(generator_type=generator)
+            print(f"[API] Successfully created pipeline with generator: {generator}", flush=True)
+        except RuntimeError as e:
+            error_msg = str(e)
+            print(f"[API] Failed to create generator '{generator}': {error_msg}", flush=True)
+            # Return a clear error message to the user
+            raise HTTPException(
+                status_code=400,
+                detail=f"Generator '{generator}' is not available: {error_msg}. Please check your API keys or use a different generator."
+            )
 
         # Handle image upload
         image_path = None
@@ -186,7 +202,11 @@ async def generate_3d(
             message="Generation task created",
         )
 
+    except HTTPException:
+        # Re-raise HTTP exceptions (like the one we just created)
+        raise
     except Exception as e:
+        print(f"[API] Unexpected error: {e}", flush=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

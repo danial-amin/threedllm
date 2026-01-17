@@ -16,7 +16,11 @@ class Instant3DGenerator(APIGenerator3D):
         return "INSTANT3D_API_KEY"
 
     def _get_default_base_url(self) -> str:
-        return "https://api.instant3d.co/v1"
+        # Note: This is a template implementation.
+        # You need to check Instant3D's actual API documentation for the correct endpoint.
+        # The base URL can be overridden via INSTANT3D_API_BASE_URL environment variable.
+        import os
+        return os.environ.get("INSTANT3D_API_BASE_URL", "https://api.instant3d.co/v1")
 
     def _get_auth_headers(self) -> dict:
         return {"X-API-Key": self.api_key}

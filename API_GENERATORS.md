@@ -124,6 +124,15 @@ curl -X POST http://localhost:8000/api/generate \
 - Verify the API key is valid and has credits
 - Check internet connection
 
+### "Failed to resolve hostname" or DNS errors
+- The API endpoint URLs in the code are **template implementations**
+- You need to check the actual API documentation from Neural4D/Instant3D for the correct endpoints
+- You can override the base URL using environment variables:
+  ```bash
+  export NEURAL4D_API_BASE_URL="https://actual-api-endpoint.com/v1"
+  export INSTANT3D_API_BASE_URL="https://actual-api-endpoint.com/v1"
+  ```
+
 ### "Generation timed out"
 - Some APIs may take longer than expected
 - Check the API status page
@@ -132,3 +141,18 @@ curl -X POST http://localhost:8000/api/generate \
 ### "Failed to parse mesh"
 - Ensure `trimesh` is installed: `pip install trimesh`
 - Check that the API returned a valid 3D file format
+
+## Important Note About API Endpoints
+
+⚠️ **The API endpoint URLs in this code are template implementations based on common API patterns.**
+
+The actual endpoints, request/response formats, and authentication methods may differ. You should:
+
+1. **Check the official API documentation** from Neural4D or Instant3D
+2. **Verify the correct base URL** and endpoint paths
+3. **Override the base URL** using environment variables if needed:
+   - `NEURAL4D_API_BASE_URL` for Neural4D
+   - `INSTANT3D_API_BASE_URL` for Instant3D
+4. **Update the request/response handling** in the generator classes if the API format differs
+
+The code structure is designed to be easily modifiable once you have the actual API documentation.
