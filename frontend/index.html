@@ -122,12 +122,18 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="generator">3D Generator</label>
-                            <select id="generator" name="generator">
+                            <select id="generator" name="generator" onchange="updateGeneratorWarning()">
                                 <option value="shap_e" selected>Shap-E (Free, Open-Source)</option>
-                                <option value="neural4d">Neural4D API (High Quality, ~90s)</option>
+                                <option value="huggingface">Hugging Face (Inference API/Endpoint/Local)</option>
+                                <option value="neural4d">Neural4D API (High Quality, ~90s) ⚠️</option>
                                 <option value="instant3d">Instant3D API (Fast, PBR Textures)</option>
                             </select>
-                            <small>Shap-E is free but variable quality. API generators require keys but produce better results.</small>
+                            <small id="generatorHelp">Shap-E is free but variable quality. API generators require keys but produce better results.</small>
+                            <div id="neural4dWarning" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+                                <strong>⚠️ Warning:</strong> Neural4D does not provide public API documentation. 
+                                You must obtain API endpoint paths from their developer dashboard or contact support@dreamtech.ai.
+                                See <code>API_GENERATORS.md</code> for configuration details.
+                            </div>
                         </div>
 
                         <div class="form-group">

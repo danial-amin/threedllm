@@ -48,7 +48,7 @@ def get_generator(generator_type: str = None) -> Generator3D:
     Get a generator instance based on type.
     
     Args:
-        generator_type: "shap_e", "neural4d", or "instant3d". 
+        generator_type: "shap_e", "neural4d", "instant3d", or "huggingface". 
                       If None, uses GENERATOR_TYPE env var.
     """
     if generator_type is None:
@@ -56,7 +56,24 @@ def get_generator(generator_type: str = None) -> Generator3D:
     
     print(f"get_generator called with type: {generator_type}", flush=True)
     
-    if generator_type == "neural4d":
+    if generator_type == "huggingface" or generator_type == "hf":
+        try:
+            from threedllm.generators.huggingface import HuggingFaceGenerator
+            generator = HuggingFaceGenerator()
+            if not generator.is_available():
+                raise RuntimeError(
+                    "Hugging Face generator is not available. "
+                    "Please set HF_MODEL_ID and HF_API_TOKEN environment variables, "
+                    "or HF_ENDPOINT_URL for endpoint mode, "
+                    "or HF_LOCAL_MODEL_PATH for local deployment."
+                )
+            return generator
+        except ImportError:
+            raise RuntimeError(
+                "Hugging Face generator requires transformers. "
+                "Install with: pip install transformers torch"
+            )
+    elif generator_type == "neural4d":
         try:
             from threedllm.generators.neural4d import Neural4DGenerator
             generator = Neural4DGenerator()
@@ -143,7 +160,7 @@ async def generate_3d(
     format: str = Form("obj", regex="^(xyz|obj|ply|stl)$"),
     max_points: Optional[int] = Form(None, ge=1),
     image: Optional[UploadFile] = File(None, description="Optional image for image-to-3D"),
-    generator: str = Form("shap_e", regex="^(shap_e|neural4d|instant3d)$", description="3D generator to use"),
+    generator: str = Form("shap_e", regex="^(shap_e|neural4d|instant3d|huggingface|hf)$", description="3D generator to use (huggingface/hf for Hugging Face models)"),
 ):
     """
     Generate a 3D object from a text prompt.

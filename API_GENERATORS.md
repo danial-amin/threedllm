@@ -28,13 +28,27 @@ pip install trimesh
 
 ### 2. Get API Keys
 
-#### Neural4D
+#### Neural4D ⚠️ **Requires API Documentation**
+
+**IMPORTANT**: Neural4D does not provide public API documentation. You must obtain the API specification from them.
+
 1. Sign up at https://www.neural4d.com/api
 2. Get your API key from the dashboard
-3. Set environment variable:
+3. **Obtain API documentation** by:
+   - Checking your developer dashboard (after login) for API docs
+   - Contacting support@dreamtech.ai to request API documentation
+   - Inspecting network traffic from their web UI (DevTools → Network tab)
+4. Once you have the documentation, configure environment variables:
    ```bash
    export NEURAL4D_API_KEY="your-api-key-here"
+   # Base URL (default: https://www.neural4d.com/api)
+   export NEURAL4D_API_BASE_URL="https://www.neural4d.com/api"
+   # Endpoint paths from their API docs (examples below - replace with actual paths)
+   export NEURAL4D_GENERATE_ENDPOINT="/v1/generate/text"
+   export NEURAL4D_STATUS_ENDPOINT="/v1/tasks/{task_id}"
    ```
+
+**Note**: The endpoint paths above are guesses. You must replace them with the actual paths from Neural4D's API documentation.
 
 #### Instant3D
 1. Sign up at https://instant3d.co

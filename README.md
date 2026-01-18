@@ -9,7 +9,7 @@ A comprehensive Vision Language Model (VLM) system for generating 3D objects fro
 - **Multiple Export Formats**: Support for XYZ, OBJ, PLY, and STL formats
 - **Modular Architecture**: Extensible design supporting multiple VLM and 3D generation backends
 - **Flexible Configuration**: Fine-tune generation parameters (guidance scale, steps, seed, etc.)
-- **High-Quality API Generators**: Support for Neural4D and Instant3D APIs for production-ready 3D models
+- **High-Quality API Generators**: Support for Neural4D, Instant3D, and Hugging Face models for production-ready 3D models
 
 ## Architecture
 
@@ -28,6 +28,7 @@ threedllm/
 - **VLM Providers**: Interface for vision-language models (currently OpenAI GPT-4 Vision)
 - **3D Generators**: Backends for 3D mesh generation
   - **Shap-E**: Free, open-source (variable quality)
+  - **Hugging Face**: Use any 3D generation model from Hugging Face (Inference API, Endpoints, or local)
   - **Neural4D API**: High-quality, fast (~90s) - requires API key
   - **Instant3D API**: Fast generation with PBR textures - requires API key
 - **Exporters**: Convert generated meshes to various file formats
@@ -255,6 +256,39 @@ optional arguments:
 - **OBJ**: Wavefront OBJ format (vertices and faces)
 - **PLY**: Polygon File Format (vertices and faces)
 - **STL**: Stereolithography format (for 3D printing)
+
+## Using Hugging Face Models
+
+ThreeDLLM supports deploying and using 3D generation models from Hugging Face in three ways:
+
+1. **Inference API** (Serverless) - Use HF's managed inference service
+2. **Inference Endpoints** - Use dedicated HF endpoints  
+3. **Local Model** - Self-host the model on your infrastructure
+
+### Quick Start
+
+**Inference API Mode:**
+```bash
+export HF_MODEL_ID="username/model-name"
+export HF_API_TOKEN="hf_xxxxxxxxxxxxx"
+export GENERATOR_TYPE="huggingface"
+```
+
+**Inference Endpoint Mode:**
+```bash
+export HF_ENDPOINT_URL="https://xxx.endpoints.huggingface.cloud"
+export HF_API_TOKEN="hf_xxxxxxxxxxxxx"
+export GENERATOR_TYPE="huggingface"
+```
+
+**Local Model Mode:**
+```bash
+export HF_LOCAL_MODEL_PATH="./models/my-model"
+export HF_DEVICE="cuda"
+export GENERATOR_TYPE="huggingface"
+```
+
+See [HUGGINGFACE.md](HUGGINGFACE.md) for detailed setup instructions and customization guide.
 
 ## Using High-Quality API Generators
 

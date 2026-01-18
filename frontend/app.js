@@ -46,6 +46,21 @@ function updateQualityPreset() {
     }
 }
 
+// Update generator warning
+function updateGeneratorWarning() {
+    const generatorSelect = document.getElementById('generator');
+    const warningDiv = document.getElementById('neural4dWarning');
+    const helpText = document.getElementById('generatorHelp');
+    
+    if (generatorSelect.value === 'neural4d') {
+        warningDiv.style.display = 'block';
+        helpText.textContent = '⚠️ Neural4D requires API documentation from their developer dashboard. See API_GENERATORS.md for setup.';
+    } else {
+        warningDiv.style.display = 'none';
+        helpText.textContent = 'Shap-E is free but variable quality. API generators require keys but produce better results.';
+    }
+}
+
 // Form submission
 generateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
